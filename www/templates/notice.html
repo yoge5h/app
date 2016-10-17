@@ -1,0 +1,19 @@
+<ion-view view-title="Notice">
+  <ion-content>
+    <ion-refresher
+    pulling-text="Refreshing"
+    on-refresh="doRefresh()">
+    </ion-refresher>
+    <div class="card"  ng-repeat="notice in notices" >
+        <div class="item item-divider background-positive">
+            <strong>{{notice.date.toString().substring(0,15)}}</strong>
+        </div>
+        <a href="#/app/notice/{{notice.id}}" style="text-decoration: none">
+        <div class="item  item-text-wrap">
+            <strong>{{notice.subject}}</strong>            
+            <p>{{notice.message.substring(0,100) + '...'}}</p>
+        </div>
+        </a>
+    </div>
+  </ion-content>
+</ion-view>

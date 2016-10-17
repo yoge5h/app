@@ -1,0 +1,20 @@
+<ion-view view-title="Settings">
+  <ion-content>
+    <div class="list">
+        <label class="item item-input item-select">
+          <span class="input-label">Receive notification for</span>
+          <select ng-change="saveSubscription()" ng-model="settings.sectionId" convert-to-number>
+            <option ng-repeat="section in sections" value= {{section.id}} >{{section.name}}</option>
+          </select>
+        </label>
+        <div class="item item-input item-button">
+            <div class="col-50">
+                <span class="input-label">Scan QR code</span>
+            </div>
+            <div class="col-50">
+                <button clear class="button button-positive" ng-click="scanBarcode()" style="float:right; margin-right:5%">Scan</button>
+            </div>
+        </div>        
+    </div>
+  </ion-content>
+</ion-view>

@@ -1,0 +1,18 @@
+<ion-view view-title="Notice Details">
+  <ion-content>
+    <div class="list">
+      <div class="item item-icon-left">
+            <i class="icon ion-android-calendar"></i>
+            {{notice.date.toString().substring(0,15)}}
+      </div>
+      <div class="item item-icon-left">
+            <i class="icon ion-information-circled"></i>
+            {{notice.subject}}
+      </div>
+      <div class="item item-icon-left item-text-wrap">
+            <i class="icon ion-email"></i>
+            <p>{{notice.message}}</p>
+      </div>
+    </div>
+  </ion-content>
+</ion-view>

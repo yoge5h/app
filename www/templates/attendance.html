@@ -1,0 +1,21 @@
+<ion-view view-title="Attendance">
+    <ion-nav-buttons side="secondary">
+        <div class="buttons">
+            <button class="button button-icon ion-more" ng-click="openPopover($event)"></button>
+        </div>
+    </ion-nav-buttons>
+    <ion-content>
+        <div class="list">
+            <label class="item" ng-if="students.length == 0"><span style="float:right">Click here <i class="ion-arrow-up-c"></i></span></label> 
+            <li class="item item-toggle" ng-repeat="student in students">
+                {{($index + 1) + '\) ' + student.firstName + ' ' + student.lastName}}
+             <label class="toggle toggle-positive"/>
+                <input type="checkbox" ng-model="student.isPresent">
+                <div class="track">
+                    <div class="handle">
+                    </div>
+                </div>
+            </li>  
+        </div>
+    </ion-content>
+</ion-view>
