@@ -6,8 +6,8 @@
 // 'starter.controllers' is found in controllers.js
 angular.module('notify', ['ionic', 'notify.controllers','notify.services','ngCordova'])
 
-.run(['$ionicPlatform','$rootScope','$ionicLoading','$localStorage','$cordovaPushV5','$ionicPopup','$state','$ionicHistory'
-,function($ionicPlatform,$rootScope,$ionicLoading,$localStorage,$cordovaPushV5,$ionicPopup,$state,$ionicHistory) {
+.run(['$ionicPlatform','$rootScope','$ionicLoading','$localStorage','$cordovaPushV5','$ionicPopup','$state','$ionicHistory','noticeFactory'
+,function($ionicPlatform,$rootScope,$ionicLoading,$localStorage,$cordovaPushV5,$ionicPopup,$state,$ionicHistory,noticeFactory) {
   $ionicPlatform.ready(function() {
     // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
     // for form inputs)
@@ -30,16 +30,6 @@ angular.module('notify', ['ionic', 'notify.controllers','notify.services','ngCor
     $rootScope.$on('loading:hide', function () {
         $ionicLoading.hide();
     });
-
-    //$rootScope.$on('$stateChangeStart', function () {
-    //    console.log('state change start ...');
-    //    //$rootScope.$broadcast('loading:show');
-    //});
-//
-//    $rootScope.$on('$stateChangeSuccess', function () {
-//        console.log('state change end ...');
-//        //$rootScope.$broadcast('loading:hide');
-//    });
       
     //back button config
    $ionicPlatform.registerBackButtonAction(function(event) {
@@ -94,7 +84,14 @@ angular.module('notify', ['ionic', 'notify.controllers','notify.services','ngCor
     // data.sound,
     // data.image,
     // data.additionalData
-      alert(data.message);
+    //alert(data.message);
+    noticeFactory.getFreshNotice().then(function(response){
+        $rootScope.notices = response.data.notices;
+        $localStorage.storeObject('notices',response.data.notices);
+    },function(response){
+        alert('Could not load new notices.');
+    });
+      
   });
 
   // triggered every time error occurs
@@ -137,8 +134,7 @@ angular.module('notify', ['ionic', 'notify.controllers','notify.services','ngCor
       url: '/aboutus',
       views: {
         'mainContent': {
-          templateUrl: 'templates/aboutus.html',
-		  controller: 'AboutController'
+          templateUrl: 'templates/aboutus.html'
         }
       }
   })
@@ -163,10 +159,7 @@ angular.module('notify', ['ionic', 'notify.controllers','notify.services','ngCor
         'mainContent': {
             controller:'AttendanceController',
             templateUrl: 'templates/attendance.html',
-            resolve:{
-                subjects: ['attendanceFactory', function(attendanceFactory) {
-                      return attendanceFactory.getSubjects();
-                  }],
+            resolve:{                
                 sections:  ['attendanceFactory', function(attendanceFactory){
                     return attendanceFactory.getSections();
                 }]

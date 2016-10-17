@@ -20,26 +20,31 @@ angular.module('notify.services',['ngResource'])
       }
 }])
 
-.factory('noticeFactory',[function(){
-    var notices = [
-        {id:1,date:new Date(), subject:'This is a test notice one', message:'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.'},
-        {id:2,date:new Date(), subject:'This is a test notice two', message:'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.'},
-        {id:3,date:new Date(), subject:'This is a test notice three', message:'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.'},
-        {id:4,date:new Date(), subject:'This is a test notice four', message:'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.'},
-        {id:5,date:new Date(), subject:'This is a test notice five', message:'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.'}
-    ];
+.factory('noticeFactory',['$http','baseURL','$localStorage',function($http,baseURL,$localStorage){
+    //var notices = [
+    //    {id:1,date:new Date(), subject:'This is a test notice one', message:'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.'},
+    //    {id:2,date:new Date(), subject:'This is a test notice two', message:'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.'},
+    //    {id:3,date:new Date(), subject:'This is a test notice three', message:'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.'},
+    //    {id:4,date:new Date(), subject:'This is a test notice four', message:'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.'},
+    //    {id:5,date:new Date(), subject:'This is a test notice five', message:'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.'}
+    //];
     return {
         getNotices : function(){
-            return notices;
+            return $localStorage.getObject('notices','[]');
         },
         getNoticeById: function(id){
             var returnNotice;
+            var notices = $localStorage.getObject('notices','[]');
             angular.forEach(notices,function(notice,index){
                 if(notice.id === id){
                     returnNotice = notice;
                 }
             }); 
             return returnNotice;
+        },
+        getFreshNotice: function(){
+            var targeturl = baseURL + 'notice';
+            return $http.get(targeturl);
         }
     }
 }])
@@ -68,10 +73,12 @@ angular.module('notify.services',['ngResource'])
     };
     return {
         getStudents : function(sectionId){
-            return dummydata.students;
+            var targeturl = baseURL + 'student/' + id;                         
+            return $http.get(targeturl);
         },
         getSubjects : function(sectionId){
-            return dummydata.subjects;
+            var targeturl = baseURL + 'subject/' + sectionId;
+            return $http.get(targeturl);
         },
         getSections : function(){
             var targeturl = baseURL + 'section';     
@@ -81,6 +88,14 @@ angular.module('notify.services',['ngResource'])
             },function(response){
                 return [];
             });
+        },
+        saveAttendance: function (attendance) {
+            var targeturl = baseURL + 'attendance/add';
+            return $http.post(targeturl,attendance);
+        },
+        isAttedanceMarked : function(attendance){
+            var targeturl = baseURL + 'attendance';
+            return $http.post(targeturl,attendance);
         }
     }
 }])
@@ -96,8 +111,11 @@ angular.module('notify.services',['ngResource'])
         saveSubscription: function(subscription){
             var targeturl = baseURL + 'subscription';
             return $http.post(targeturl,subscription);
+        },
+        login: function(userInfo){
+            var targeturl = baseURL + 'auth/login';
+            return $http.post(targeturl, userInfo);
         }
-        
     }
 }])
 ;

@@ -10,7 +10,7 @@
       <div class="list">
         <label class="item item-input item-select">
           <span class="input-label">Section</span>
-          <select ng-model="attendance.section" convert-to-number>
+          <select ng-model="attendance.section" convert-to-number  ng-change="getSubjects();">
 			<option ng-repeat="section in sections" value= {{section.id}}>{{section.name}}</option>
 		  </select>
         </label>

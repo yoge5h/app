@@ -1,7 +1,7 @@
 angular.module('notify.controllers', ['ngCordova'])
 
-.controller('AppCtrl', ['$scope', '$ionicModal', '$timeout','$localStorage'
-,function($scope, $ionicModal, $timeout,$localStorage) {
+.controller('AppCtrl', ['$scope', '$ionicModal', '$localStorage','authenticationFactory'
+,function($scope, $ionicModal, $localStorage,authenticationFactory) {
 
   // With the new view caching in Ionic, Controllers are only called
   // when they are recreated or on app start, instead of every page change.
@@ -25,55 +25,47 @@ angular.module('notify.controllers', ['ngCordova'])
   $scope.closeLogin = function() {
     $scope.modal.hide();
   };
-
-  // Open the login modal
+  
   $scope.login = function() {
     $scope.modal.show();
   };
-
-  // Perform the login action when the user submits the login form
+  
   $scope.doLogin = function() {
-    console.log('Doing login', $scope.loginData);
-	$localStorage.storeObject('userinfo',$scope.loginData);
-    // Simulate a login delay. Remove this and replace with your login
-    // code if using a login system
-    $timeout(function() {
-      $scope.closeLogin();
-    }, 1000);
+    authenticationFactory.login($scope.loginData).then(function(response){
+        $scope.loginData.password = '';
+        $localStorage.storeObject('userinfo',$scope.loginData);
+        $localStorage.store('token', response.data.token);
+    }, function(data){
+        alert('Invalid credentials or bad connection.');
+    });  
   };
-    
-  $scope.displayAttendance = function(){
-    //check if the token exists
-    return true;  
+
+  $scope.logout= function(){
+      $localStorage.store('token', '');
+  };
+  $scope.isAuthenticated = function(){
+    return $localStorage.get('token', '') !== '';  
   };
 }])
 
 
-.controller('NoticeController',['$scope','notices','$timeout','isVerified'
-,function($scope,notices,$timeout,isVerified){
-    $scope.notices = notices;
+.controller('NoticeController',['$scope','notices','isVerified','$rootScope','noticeFactory','$localStorage'
+,function($scope,notices,$timeout,isVerified,$rootScope,$localStorage){
+    $rootScope.notices = notices;
     $scope.doRefresh = function() {
-        //$http.get('/new-items')
-        // .success(function(newItems) {
-        //   $scope.items = newItems;
-        // })
-        // .finally(function() {
-        //   // Stop the ion-refresher from spinning
-        //   $scope.$broadcast('scroll.refreshComplete');
-        // });
-        $timeout(function() {
-         $scope.$broadcast('scroll.refreshComplete');
-        }, 2000);
+        noticeFactory.getFreshNotice().then(function(response){
+            $rootScope.notices = response.data.notices;
+            $localStorage.storeObject('notices',response.data.notices);
+        },function(response){
+            alert('Could not load new notices.');
+        });      
     };
     $scope.isVerified = isVerified;
-}])
-.controller('AboutController',['$scope',function($scope){
-    
 }])
 .controller('NoticeDetailController',['$scope','notice',function($scope,notice){
     $scope.notice = notice
 }])
-.controller('AttendanceController',['$scope','$ionicModal','$ionicPopover','sections','subjects','attendanceFactory'
+.controller('AttendanceController',['$scope','$ionicModal','$ionicPopover','sections','attendanceFactory'
 ,function($scope,$ionicModal,$ionicPopover,sections,subjects,attendanceFactory){
     $scope.attendance = {
         date: new Date(),
@@ -81,12 +73,43 @@ angular.module('notify.controllers', ['ngCordova'])
     };
     
     $scope.students = [];
-    $scope.subjects = subjects;
+    $scope.subjects = [];
     $scope.sections = sections;
     
+    $scope.getSubjects = function(){
+        attendanceFactory.getSubjects($scope.attendance.section).then(function(response){
+            $scope.subjects = response.data.subjects;
+        })
+    };
+    
     $scope.getStudents = function () {
-        //check if attendance already exists for the day the subject.
-        $scope.students = attendanceFactory.getStudents($scope.attendance.section);
+        
+        $scope.students = [];    
+        if (typeof $scope.attendance.section == 'undefined') {
+            alert('Please select a section.');
+            return;
+        }
+        if (typeof $scope.attendance.subject == 'undefined') {
+            alert('Please select a subject.');
+            return;
+        }
+
+        var att = {
+            sectionId : $scope.attendance.section,
+            subjectId : $scope.attendance.subject,
+            date:  $scope.attendance.date
+        }
+        attendanceFactory.isAttedanceMarked(att).then(function(response){
+            if(!response.data.status){
+                alert('Attendance for the day and subject already marked.');
+                return;
+            }
+            else{
+                attendanceFactory.getStudents($scope.attendance.section).then(function(response){
+                    $scope.students = response.data.students;
+                });
+            }
+        });
         $scope.closeSelectSection();
     };
    
@@ -99,7 +122,7 @@ angular.module('notify.controllers', ['ngCordova'])
         $scope.attendanceModal.hide();
     };	
 	$scope.openPopover = function($event) {	
-      $scope.popover.show($event);
+        $scope.popover.show($event);
     };
    
 	$scope.closePopover = function() {

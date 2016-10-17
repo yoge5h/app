@@ -30,12 +30,15 @@
         <ion-item class="item-divider">
         Admin Options
         </ion-item>
-        <ion-item menu-close href="#/app/attendance" ng-if="displayAttendance()">
+        <ion-item menu-close href="#/app/attendance" ng-if="isAuthenticated()">
           <i class="icon ion-clipboard"></i> Attendance
         </ion-item>
         
-        <ion-item menu-close ng-click="login()">
-        <i class="icon ion-person"></i> Login
+        <ion-item menu-close ng-click="login()" ng-if="!isAuthenticated()">
+            <i class="icon ion-person"></i> Login
+        </ion-item>
+        <ion-item menu-close ng-click="logout()" ng-if="isAuthenticated()">
+            <i class="icon ion-person"></i> Logout
         </ion-item>
       </ion-list>
     </ion-content>

@@ -4,7 +4,10 @@
     pulling-text="Refreshing"
     on-refresh="doRefresh()">
     </ion-refresher>
-    <div class="card"  ng-repeat="notice in notices" >
+    <div class="list" ng-if="!isVerified">
+         <label class="item">Please scan the QR code. </label>
+    </div>
+    <div class="card"  ng-repeat="notice in notices" ng-if="isVerified">
         <div class="item item-divider background-positive">
             <strong>{{notice.date.toString().substring(0,15)}}</strong>
         </div>
